@@ -1,0 +1,25 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: ingress-gateway:gateway.networking.k8s.io/Gateway:ingress-gateway/prod-web
+  labels:
+    kuadrant.io/lb-attribute-geo-code: GEO-EU
+  name: prod-web
+  namespace: ingress-gateway
+spec:
+  gatewayClassName: istio
+  listeners:
+  - allowedRoutes:
+      namespaces:
+        from: All
+    hostname: '*.travels.sandbox126.opentlc.com'
+    name: api
+    port: 443
+    protocol: HTTPS
+    tls:
+      certificateRefs:
+      - group: ""
+        kind: Secret
+        name: api-tls
+      mode: Terminate

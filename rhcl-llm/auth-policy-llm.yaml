@@ -1,0 +1,69 @@
+apiVersion: kuadrant.io/v1
+kind: AuthPolicy
+metadata:
+  name: trlp-tutorial-llm-api-keys
+  namespace: ingress-gateway
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: prod-web
+  rules:
+    authentication:
+      api-key-users:
+        apiKey:
+          selector:
+            matchLabels:
+              app: my-llm
+        credentials:
+          authorizationHeader:
+            prefix: APIKEY
+    response:
+      success:
+        filters:
+          identity:
+            json:
+              properties:
+                groups:
+                  selector: auth.identity.metadata.annotations.kuadrant\.io/groups
+                userid:
+                  selector: auth.identity.metadata.annotations.secret\.kuadrant\.io/user-id
+    authorization:
+      allow-groups:
+        opa:
+          rego: |
+            groups := split(object.get(input.auth.identity.metadata.annotations, "kuadrant.io/groups", ""), ",")
+            allow { groups[_] == "free" }
+            allow { groups[_] == "gold" }
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trlp-tutorial-api-key-free-user-1
+  namespace: kuadrant-system
+  labels:
+    authorino.kuadrant.io/managed-by: authorino
+    app: my-llm
+  annotations:
+    kuadrant.io/groups: free
+    secret.kuadrant.io/user-id: user-1
+stringData:
+  api_key: iamafreeuser
+type: Opaque
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trlp-tutorial-api-key-gold-user-1
+  namespace: kuadrant-system
+  labels:
+    authorino.kuadrant.io/managed-by: authorino
+    app: my-llm
+  annotations:
+    kuadrant.io/groups: gold
+    secret.kuadrant.io/user-id: user-2
+stringData:
+  api_key: iamagolduser
+type: Opaque

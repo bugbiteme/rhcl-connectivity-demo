@@ -1,0 +1,16 @@
+apiVersion: kuadrant.io/v1
+kind: RateLimitPolicy
+metadata:
+  name: ratelimit-policy-llm
+  namespace: llm-sim
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: llm-sim
+  limits:
+    "per-user":
+      rates:
+        - limit: 2000
+          window: 10s
+ 

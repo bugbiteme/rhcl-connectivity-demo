@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: trlp-tutorial-llm-sim
+  namespace: llm-sim
+spec:
+  clusterIP: 172.30.163.169
+  clusterIPs:
+  - 172.30.163.169
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 80
+    targetPort: 8000
+  selector:
+    app: trlp-tutorial-llm-sim

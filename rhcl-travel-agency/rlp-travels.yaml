@@ -1,0 +1,17 @@
+apiVersion: kuadrant.io/v1
+kind: RateLimitPolicy
+metadata:
+  name: ratelimit-policy-travels
+  namespace: travel-agency
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: travel-agency
+  limits:
+    "per-user":
+      rates:
+        - limit: 20
+          window: 10s
+      counters:
+        - expression: auth.identity.userid

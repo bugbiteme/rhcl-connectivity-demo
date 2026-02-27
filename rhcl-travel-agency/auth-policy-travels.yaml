@@ -1,0 +1,34 @@
+apiVersion: kuadrant.io/v1
+kind: AuthPolicy
+metadata:
+  name: travel-agency-authpolicy
+  namespace: travel-agency
+spec:
+  defaults:
+    rules:
+      authentication:
+        api-key-authn:
+          apiKey:
+            allNamespaces: false
+            selector:
+              matchLabels:
+                app: partner
+          credentials:
+            queryString:
+              name: APIKEY
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: travel-agency
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: apikey-blue
+  namespace: kuadrant-system
+  labels:
+    authorino.kuadrant.io/managed-by: authorino
+    app: partner
+stringData:
+  api_key: blue
