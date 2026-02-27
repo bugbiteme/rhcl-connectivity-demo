@@ -120,6 +120,13 @@ Adjust namespaces and hostnames to match your environment. Replace **`.sandbox12
 
 ---
 
+## TODO
+
+- [ ] MCP Gateway Policies
+- [ ] Config map for root domain info
+
+---
+
 ## References
 
 - [Kuadrant](https://docs.kuadrant.io/) — AuthPolicy, RateLimitPolicy, TokenRateLimitPolicy.
