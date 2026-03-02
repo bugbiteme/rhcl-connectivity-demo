@@ -1,0 +1,51 @@
+apiVersion: kuadrant.io/v1
+kind: AuthPolicy
+metadata:
+  name: mcp-server-auth
+  namespace: mcp-server
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: mcp-http-route
+  # Bypass auth for OAuth resource metadata discovery endpoint
+  when:
+    - predicate: "!request.path.startsWith('/.well-known')"
+  rules:
+    authentication:
+      api-key-users:
+        apiKey:
+          selector:
+            matchLabels:
+              app: mcp-demo
+        credentials:
+          authorizationHeader:
+            prefix: APIKEY
+    response:
+      success:
+        filters:
+          identity:
+            json:
+              properties:
+                groups:
+                  selector: auth.identity.metadata.annotations.kuadrant\.io/groups
+                userid:
+                  selector: auth.identity.metadata.annotations.secret\.kuadrant\.io/user-id
+    authorization:
+      allow-mcp-access:
+        opa:
+          rego: |
+            groups := split(object.get(input.auth.identity.metadata.annotations, "kuadrant.io/groups", ""), ",")
+            mcp_method := object.get(input.request.headers, "x-mcp-method", "")
+
+            # All mcp-user group members can initialize and call tools
+            allow {
+              groups[_] == "mcp-user"
+              mcp_method in {"initialize", "notifications/initialized", "tools/list", "tools/call"}
+            }
+
+            # Only mcp-admin can access resources and prompts
+            allow {
+              groups[_] == "mcp-admin"
+              mcp_method in {"resources/list", "resources/read", "prompts/list", "prompts/get"}
+            }

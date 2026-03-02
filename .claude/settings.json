@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.kuadrant.io)",
+      "WebFetch(domain:kagent.dev)"
+    ]
+  }
+}

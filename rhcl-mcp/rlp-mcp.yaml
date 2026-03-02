@@ -1,0 +1,29 @@
+apiVersion: kuadrant.io/v1
+kind: RateLimitPolicy
+metadata:
+  name: mcp-server-rlp
+  namespace: mcp-server
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: mcp-http-route
+  limits:
+    mcp-user-limit:
+      rates:
+      - limit: 30
+        window: 1m
+      when:
+        - predicate: |
+            auth.identity.groups.split(",").exists(g, g == "mcp-user")
+      counters:
+        - expression: auth.identity.userid
+    mcp-admin-limit:
+      rates:
+      - limit: 120
+        window: 1m
+      when:
+        - predicate: |
+            auth.identity.groups.split(",").exists(g, g == "mcp-admin")
+      counters:
+        - expression: auth.identity.userid

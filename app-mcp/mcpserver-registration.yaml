@@ -1,0 +1,11 @@
+apiVersion: mcp.kagenti.com/v1alpha1
+kind: MCPServerRegistration
+metadata:
+  name: mcp-server-everything
+  namespace: mcp-server
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: mcp-http-route
+  toolPrefix: everything_
